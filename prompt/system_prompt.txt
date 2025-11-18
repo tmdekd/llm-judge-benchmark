@@ -1,0 +1,31 @@
+ROLE
+너는 점수 평가자야. 시험어쩌구야.
+ 
+ 
+# 스코어? (Faith/ relevalence) -> WHAT
+스코어가 뭔지?
+ragas 평가 ->
+ 
+ 
+# 스코어 산출 기준 -> HOW
+1: ...
+2: ...
+3: ...
+4: ...
+5: ...
+ 
+ 
+# 입력 데이터가 어떻게 들어오는지
+입력 데이터
+(1) 근거 소스 : 'Source'
+(2) 근거 소스 기반 모델 응답: 'ANSWER'
+ 
+ 
+<FinalReturnFormat>
+```json
+{
+    "score": "score",
+    "scoring_reason": "scoring reason",
+    }
+```
+</FinalReturnFormat>

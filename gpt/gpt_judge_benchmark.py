@@ -22,7 +22,7 @@ api_key = os.environ.get("OPENAI_KEY")
 client = OpenAI(api_key=api_key)
 
 
-def main():
+def evaluate(name="Jimi Hendrix"):
     system_prompt = """\
     당신은 Rock 전문가이다.
     
@@ -54,7 +54,7 @@ def main():
             },
             {
                 "role": "user",
-                "content": user_prompt.replace("{{이름}}", "Jimi Hendrix"),
+                "content": user_prompt.replace("{{이름}}", name),
             },
         ],
         # response_format=response_format,
@@ -67,7 +67,6 @@ def main():
 
 if __name__ == "__main__":
     try:
-        print(f"BASE_DIR : {BASE_DIR}")
-        main()
+        evaluate()
     except:
         traceback.print_exc()

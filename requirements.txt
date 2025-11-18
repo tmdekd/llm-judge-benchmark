@@ -1,5 +1,6 @@
 # Common Libraries
 dotenv
+pandas
 
 # gpt pipeline
 openai
