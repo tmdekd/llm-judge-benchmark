@@ -165,10 +165,10 @@ def main():
     SYSTEM_PROMPT_REL_PATH = PROMPT_FOLDER_PATH + "system_prompt_relevance.txt"
     USER_TEMPLATE_PATH = PROMPT_FOLDER_PATH + "user_template.txt"
 
-    FOLDER_PATH = "data/sample/"
+    FOLDER_PATH = "data/test_dataset/"
     OUTPUT_PATH = FOLDER_PATH + "output/"
-    ENV_CSV_PATH = FOLDER_PATH + "environment_sample.csv"
-    HEALTH_CSV_PATH = FOLDER_PATH + "health_sample.csv"
+    ENV_CSV_PATH = FOLDER_PATH + "environment_50.csv"
+    HEALTH_CSV_PATH = FOLDER_PATH + "health_50.csv"
 
     os.makedirs(OUTPUT_PATH, exist_ok=True)
 
@@ -239,11 +239,11 @@ def main():
     logger.info(f"[TIME] 건강 CSV - Relevance 평가 소요 시간: {health_rel_end - health_rel_start:.2f}초")
 
     # ========= CSV 저장 =========
-    env_output_path = OUTPUT_PATH + "environment_sample_scored.csv"
+    env_output_path = OUTPUT_PATH + "environment_50_scored.csv"
     df_env_scored.to_csv(env_output_path, encoding="utf-8-sig", index=False)
     logger.info(f"[INFO] 주거 환경 데이터 기반 LLM 응답 스코어 결과 저장 완료: {env_output_path}")
 
-    health_output_path = OUTPUT_PATH + "health_sample_scored.csv"
+    health_output_path = OUTPUT_PATH + "health_50_scored.csv"
     df_health_scored.to_csv(health_output_path, encoding="utf-8-sig", index=False)
     logger.info(f"[INFO] 건강 데이터 기반 LLM 응답 스코어 결과 저장 완료: {health_output_path}")
 
