@@ -210,68 +210,65 @@ async def main_async(num_runs: int = 3):
         df_env = df_env_base.copy()
         df_health = df_health_base.copy()
 
-        # ========= 주거 환경 데이터 + 건강 데이터 Faithfulness 평가 =========
-        # 주거 환경 데이터
-        total_faith_start = time.time()
-        logger.info("주거 환경 데이터 기반 LLM 응답 평가 시작 - Faithfulness")
+        # ========= 주거 환경 데이터 + 건강 데이터 Faithfulness 평가 (두 CSV 동시 실행) =========
+        logger.info("주거 환경/건강 데이터 기반 LLM 응답 평가 시작 - Faithfulness (두 CSV 동시 실행)")
 
-        env_faith_start = time.time()
-        df_env_scored = await async_add_gpt_score_columns(
-            df=df_env,
-            system_prompt=system_prompt_faith,
-            user_template=user_template,
-            metric_prefix="gpt_faithfulness",
-            MAX_LIMIT=MAX_LIMIT,
+        faith_start = time.time()
+
+        env_faith_task = asyncio.create_task(
+            async_add_gpt_score_columns(
+                df=df_env,
+                system_prompt=system_prompt_faith,
+                user_template=user_template,
+                metric_prefix="gpt_faithfulness",
+                MAX_LIMIT=MAX_LIMIT,
+            )
         )
-        env_faith_end = time.time()
-        logger.info(f"<TIME> 주거 환경 CSV - Faithfulness 평가 소요 시간: {env_faith_end - env_faith_start:.2f}초\n")
 
-        # 건강 데이터
-        logger.info("건강 데이터 기반 LLM 응답 평가 시작 - Faithfulness")
-
-        health_faith_start = time.time()
-        df_health_scored = await async_add_gpt_score_columns(
-            df=df_health,
-            system_prompt=system_prompt_faith,
-            user_template=user_template,
-            metric_prefix="gpt_faithfulness",
-            MAX_LIMIT=MAX_LIMIT,
+        health_faith_task = asyncio.create_task(
+            async_add_gpt_score_columns(
+                df=df_health,
+                system_prompt=system_prompt_faith,
+                user_template=user_template,
+                metric_prefix="gpt_faithfulness",
+                MAX_LIMIT=MAX_LIMIT,
+            )
         )
-        health_faith_end = time.time()
-        logger.info(f"<TIME> 건강 CSV - Faithfulness 평가 소요 시간: {health_faith_end - health_faith_start:.2f}초\n")
-        total_faith_end = time.time()
-        logger.info(f"<TIME> Faithfulness 평가 전체 소요 시간: {total_faith_end - total_faith_start:.2f}초\n")
 
-        # ========= 주거 환경 데이터 + 건강 데이터 Relevance 평가 =========
-        # 주거 환경 데이터
-        total_rel_start = time.time()
-        logger.info("주거 환경 데이터 기반 LLM 응답 평가 시작 - Relevance")
-        env_rel_start = time.time()
-        df_env_scored = await async_add_gpt_score_columns(
-            df=df_env_scored,
-            system_prompt=system_prompt_rel,
-            user_template=user_template,
-            metric_prefix="gpt_relevance",
-            MAX_LIMIT=MAX_LIMIT,
+        df_env_scored, df_health_scored = await asyncio.gather(env_faith_task, health_faith_task)
+
+        faith_end = time.time()
+        logger.info(f"<TIME> Faithfulness (환경+건강 두 CSV 동시 평가) 소요 시간: {faith_end - faith_start:.2f}초\n")
+
+        # ========= 주거 환경 데이터 + 건강 데이터 Relevance 평가 (두 CSV 동시 실행) =========
+        logger.info("주거 환경/건강 데이터 기반 LLM 응답 평가 시작 - Relevance (두 CSV 동시 실행)")
+
+        rel_start = time.time()
+
+        env_rel_task = asyncio.create_task(
+            async_add_gpt_score_columns(
+                df=df_env_scored,
+                system_prompt=system_prompt_rel,
+                user_template=user_template,
+                metric_prefix="gpt_relevance",
+                MAX_LIMIT=MAX_LIMIT,
+            )
         )
-        env_rel_end = time.time()
-        logger.info(f"<TIME> 주거 환경 CSV - Relevance 평가 소요 시간: {env_rel_end - env_rel_start:.2f}초\n")
 
-        # 건강 데이터
-        logger.info("건강 데이터 기반 LLM 응답 평가 시작 - Relevance")
-
-        health_rel_start = time.time()
-        df_health_scored = await async_add_gpt_score_columns(
-            df=df_health_scored,
-            system_prompt=system_prompt_rel,
-            user_template=user_template,
-            metric_prefix="gpt_relevance",
-            MAX_LIMIT=MAX_LIMIT,
+        health_rel_task = asyncio.create_task(
+            async_add_gpt_score_columns(
+                df=df_health_scored,
+                system_prompt=system_prompt_rel,
+                user_template=user_template,
+                metric_prefix="gpt_relevance",
+                MAX_LIMIT=MAX_LIMIT,
+            )
         )
-        health_rel_end = time.time()
-        logger.info(f"<TIME> 건강 CSV - Relevance 평가 소요 시간: {health_rel_end - health_rel_start:.2f}초\n")
-        total_rel_end = time.time()
-        logger.info(f"<TIME> Relevance 평가 전체 소요 시간: {total_rel_end - total_rel_start:.2f}초\n")
+
+        df_env_scored, df_health_scored = await asyncio.gather(env_rel_task, health_rel_task)
+
+        rel_end = time.time()
+        logger.info(f"<TIME> Relevance (환경+건강 두 CSV 동시 평가) 소요 시간: {rel_end - rel_start:.2f}초\n")
 
         # ========= CSV 저장 =========
         env_output_path = OUTPUT_PATH + "environment_50_scored.csv"
