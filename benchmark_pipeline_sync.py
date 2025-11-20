@@ -22,7 +22,7 @@ logging.basicConfig(
     handlers=[
         logging.StreamHandler(),  # 콘솔 출력
         logging.FileHandler(
-            os.path.join(LOG_DIR, "llm_evaluation.log"),
+            os.path.join(LOG_DIR, "llm_evaluation_sync.log"),
             encoding="utf-8",
         ),  # 파일 저장
     ],
@@ -200,7 +200,7 @@ def main():
         metric_prefix="gpt_faithfulness",
     )
     env_faith_end = time.time()
-    logger.info(f"[TIME] 환경 CSV - Faithfulness 평가 소요 시간: {env_faith_end - env_faith_start:.2f}초")
+    logger.info(f"<TIME> 환경 CSV - Faithfulness 평가 소요 시간: {env_faith_end - env_faith_start:.2f}초")
 
     # 2) 관련성(Relevance) 평가 - 환경 CSV
     env_rel_start = time.time()
@@ -211,7 +211,7 @@ def main():
         metric_prefix="gpt_relevance",
     )
     env_rel_end = time.time()
-    logger.info(f"[TIME] 환경 CSV - Relevance 평가 소요 시간: {env_rel_end - env_rel_start:.2f}초")
+    logger.info(f"<TIME> 환경 CSV - Relevance 평가 소요 시간: {env_rel_end - env_rel_start:.2f}초")
 
     # ========= 건강형 데이터 =========
     logger.info("=[INFO] 건강 데이터 기반 LLM 응답 평가 시작...")
@@ -225,7 +225,7 @@ def main():
         metric_prefix="gpt_faithfulness",
     )
     health_faith_end = time.time()
-    logger.info(f"[TIME] 건강 CSV - Faithfulness 평가 소요 시간: {health_faith_end - health_faith_start:.2f}초")
+    logger.info(f"<TIME> 건강 CSV - Faithfulness 평가 소요 시간: {health_faith_end - health_faith_start:.2f}초")
 
     # 2) 관련성(Relevance) 평가 - 건강 CSV
     health_rel_start = time.time()
@@ -236,7 +236,7 @@ def main():
         metric_prefix="gpt_relevance",
     )
     health_rel_end = time.time()
-    logger.info(f"[TIME] 건강 CSV - Relevance 평가 소요 시간: {health_rel_end - health_rel_start:.2f}초")
+    logger.info(f"<TIME> 건강 CSV - Relevance 평가 소요 시간: {health_rel_end - health_rel_start:.2f}초")
 
     # ========= CSV 저장 =========
     env_output_path = OUTPUT_PATH + "environment_50_scored.csv"
