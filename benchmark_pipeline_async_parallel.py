@@ -14,7 +14,7 @@ from calculate_function.calculate_functions import calculate_faithfulness_score,
 import asyncio
 
 # OpenAI API 동시 호출 최대 개수
-MAX_LIMIT = 10
+MAX_LIMIT = 20
 
 # LLM 평가 반복 횟수
 REPETITION_NUM = 3
@@ -205,6 +205,7 @@ async def main_async(num_runs: int = 3):
     logger.info("User Template loaded.\n")
 
     for i in range(1, num_runs + 1):
+        total_time_start = time.time()
         logger.info(f"[RUN {i}] ===== LLM 평가 파이프라인 시작 =====\n")
 
         df_env = df_env_base.copy()
@@ -331,6 +332,8 @@ async def main_async(num_runs: int = 3):
             f.write(f"Relevance 평가 평균 : {(env_rel_norm + health_rel_norm) / 2:.4f}\n")
 
         logger.info(f"[RUN {i}] Score file saved: {score_file_path}")
+        total_time_end = time.time()
+        logger.info(f"[RUN {i}] <TOTAL TIME> 전체 소요 시간: {total_time_end - total_time_start:.2f}초\n\n")
         logger.info(f"[RUN {i}] ===== LLM 평가 파이프라인 종료 =====")
         logger.info(f"[RUN {i}] ====================================\n\n")
 

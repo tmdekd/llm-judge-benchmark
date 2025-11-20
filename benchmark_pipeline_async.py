@@ -14,7 +14,7 @@ from calculate_function.calculate_functions import calculate_faithfulness_score,
 import asyncio
 
 # OpenAI API 동시 호출 최대 개수
-MAX_LIMIT = 10
+MAX_LIMIT = 20
 
 # LLM 평가 반복 횟수
 REPETITION_NUM = 3
