@@ -32,21 +32,28 @@ async def score_row(
     return int(data.get("score", 0)), data.get("scoring_reason", "")
 
 
-async def async_add_gpt_score_columns(
-    df: pd.DataFrame,
+async def async_add_gpt_score_columns_two_dfs(
+    df_env: pd.DataFrame,
+    df_health: pd.DataFrame,
     system_prompt: str,
     user_template: str,
     metric_prefix: str,
     max_limit: int,
     progress_desc: str,
-    progress_position: int = 0,
-) -> pd.DataFrame:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    ENV, HEALTH 두 개의 DataFrame을 동시에 평가하고
+    전체 row 개수(ENV+HEALTH)를 기준으로 tqdm 진행바 1개만 표시.
+    """
 
-    scores: List[int] = [0] * len(df)
-    reasons: List[str] = [""] * len(df)
+    env_scores: List[int] = [0] * len(df_env)
+    env_reasons: List[str] = [""] * len(df_env)
+    health_scores: List[int] = [0] * len(df_health)
+    health_reasons: List[str] = [""] * len(df_health)
+
     semaphore = asyncio.Semaphore(max_limit)
 
-    async def worker(pos: int, row: pd.Series):
+    async def worker(is_env: bool, pos: int, row: pd.Series):
         llm_answer = row.get("llm_answer", "")
         retrieved_result = row.get("retrieved_result", "")
 
@@ -64,27 +71,46 @@ async def async_add_gpt_score_columns(
                     user_prompt=user_prompt,
                 )
             except Exception as e:
-                logger.error(f"Row {pos} scoring failed ({metric_prefix}): {e}")
+                logger.error(f"[{'ENV' if is_env else 'HEALTH'}][row {pos}] scoring failed ({metric_prefix}): {e}")
                 score, reason = 0, f"error: {e}"
 
-        return pos, score, reason
+        return is_env, pos, score, reason
 
-    tasks = [worker(pos, row) for pos, (_, row) in enumerate(df.iterrows())]
+    tasks = []
 
+    # ENV 쪽 row 작업 추가
+    for pos, (_, row) in enumerate(df_env.iterrows()):
+        tasks.append(worker(True, pos, row))
+
+    # HEALTH 쪽 row 작업 추가
+    for pos, (_, row) in enumerate(df_health.iterrows()):
+        tasks.append(worker(False, pos, row))
+
+    total_rows = len(tasks)
+
+    # 진행바 1개: 전체 row(ENV + HEALTH) 기준
     for coro in tqdm(
         asyncio.as_completed(tasks),
-        total=len(tasks),
+        total=total_rows,
         desc=progress_desc,
-        position=progress_position,
-        leave=True,
+        leave=False,  # 끝나면 bar 지움
+        ncols=100,
+        dynamic_ncols=False,
     ):
-        pos, score, reason = await coro
-        scores[pos] = score
-        reasons[pos] = reason
+        is_env, pos, score, reason = await coro
+        if is_env:
+            env_scores[pos] = score
+            env_reasons[pos] = reason
+        else:
+            health_scores[pos] = score
+            health_reasons[pos] = reason
 
-    df[f"{metric_prefix}_score"] = scores
-    df[f"{metric_prefix}_scoring_reason"] = reasons
-    return df
+    df_env[f"{metric_prefix}_score"] = env_scores
+    df_env[f"{metric_prefix}_scoring_reason"] = env_reasons
+    df_health[f"{metric_prefix}_score"] = health_scores
+    df_health[f"{metric_prefix}_scoring_reason"] = health_reasons
+
+    return df_env, df_health
 
 
 def build_results_from_df(df: pd.DataFrame, score_column: str):

@@ -12,7 +12,10 @@ from calculate_function.calculate_functions import (
 )
 
 from gpt.llm_client import load_text
-from gpt.async_scorer import async_add_gpt_score_columns, build_results_from_df
+from gpt.async_scorer import (
+    async_add_gpt_score_columns_two_dfs,
+    build_results_from_df,
+)
 from config import (
     PROMPT_DIR,
     OUTPUT_DIR,
@@ -24,10 +27,8 @@ from config import (
     REPETITION_NUM,
 )
 from tqdm import tqdm
-import logging
 
 
-# tqdm과 logger 충돌 방지용 핸들러
 class TqdmLoggingHandler(logging.Handler):
     def __init__(self, level=logging.NOTSET):
         super().__init__(level)
@@ -35,7 +36,7 @@ class TqdmLoggingHandler(logging.Handler):
     def emit(self, record):
         try:
             msg = self.format(record)
-            tqdm.write(msg)  # <-- tqdm-friendly 출력
+            tqdm.write(msg)
             self.flush()
         except Exception:
             self.handleError(record)
@@ -46,12 +47,10 @@ logger.setLevel(logging.INFO)
 
 formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
 
-# 파일 로그
 file_handler = logging.FileHandler(LOG_DIR / "llm_evaluation_async.log", encoding="utf-8-sig")
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
-# tqdm-safe console 로그
 tqdm_handler = TqdmLoggingHandler()
 tqdm_handler.setFormatter(formatter)
 logger.addHandler(tqdm_handler)
@@ -83,53 +82,27 @@ async def main_async(num_runs: int):
         df_env = df_env_base.copy()
         df_health = df_health_base.copy()
 
-        # -----------------------------
-        # Faithfulness
-        # -----------------------------
-        env_faith_task = async_add_gpt_score_columns(
+        # --------- Faithfulness (ENV+HEALTH 100 rows) ---------
+        df_env_scored, df_health_scored = await async_add_gpt_score_columns_two_dfs(
             df_env,
-            system_prompt_faith,
-            user_template,
-            "gpt_faithfulness",
-            MAX_LIMIT,
-            progress_desc=f"[RUN {i}] ENV Faithfulness",
-            progress_position=0,
-        )
-        health_faith_task = async_add_gpt_score_columns(
             df_health,
             system_prompt_faith,
             user_template,
-            "gpt_faithfulness",
-            MAX_LIMIT,
-            progress_desc=f"[RUN {i}] HEALTH Faithfulness",
-            progress_position=1,
+            metric_prefix="gpt_faithfulness",
+            max_limit=MAX_LIMIT,
+            progress_desc=f"[RUN {i}] Faithfulness",
         )
 
-        df_env_scored, df_health_scored = await asyncio.gather(env_faith_task, health_faith_task)
-
-        # -----------------------------
-        # Relevance
-        # -----------------------------
-        env_rel_task = async_add_gpt_score_columns(
+        # --------- Relevance (ENV+HEALTH 100 rows) ---------
+        df_env_scored, df_health_scored = await async_add_gpt_score_columns_two_dfs(
             df_env_scored,
-            system_prompt_rel,
-            user_template,
-            "gpt_relevance",
-            MAX_LIMIT,
-            progress_desc=f"[RUN {i}] ENV Relevance",
-            progress_position=2,
-        )
-        health_rel_task = async_add_gpt_score_columns(
             df_health_scored,
             system_prompt_rel,
             user_template,
-            "gpt_relevance",
-            MAX_LIMIT,
-            progress_desc=f"[RUN {i}] HEALTH Relevance",
-            progress_position=3,
+            metric_prefix="gpt_relevance",
+            max_limit=MAX_LIMIT,
+            progress_desc=f"[RUN {i}] Relevance",
         )
-
-        df_env_scored, df_health_scored = await asyncio.gather(env_rel_task, health_rel_task)
 
         # CSV 저장
         env_csv_path = OUTPUT_DIR / "environment_50_scored.csv"
@@ -159,6 +132,8 @@ async def main_async(num_runs: int):
         logger.info(f"[RUN {i}] HEALTH Faithfulness: {health_faith:.4f}")
         logger.info(f"[RUN {i}] ENV Relevance: {env_rel:.4f}")
         logger.info(f"[RUN {i}] HEALTH Relevance: {health_rel:.4f}")
+        logger.info(f"[RUN {i}] Faithfulness 평균: {(env_faith + health_faith) / 2:.4f}")
+        logger.info(f"[RUN {i}] Relevance 평균: {(env_rel + health_rel) / 2:.4f}")
 
         # 점수 파일 저장
         score_path = SCORE_DIR / f"faithfulness_relevance_scores{i}.txt"
@@ -171,11 +146,14 @@ async def main_async(num_runs: int):
             f.write(f"HEALTH_Faithfulness: {health_faith}\n\n")
             f.write("=== Relevance ===\n")
             f.write(f"ENV_Relevance: {env_rel}\n")
-            f.write(f"HEALTH_Relevance: {health_rel}\n")
+            f.write(f"HEALTH_Relevance: {health_rel}\n\n")
+            f.write("=== Faithfulness & Relevance 평균 ===\n")
+            f.write(f"Faithfulness 평균: {(env_faith + health_faith) / 2:.4f}\n")
+            f.write(f"Relevance 평균: {(env_rel + health_rel) / 2:.4f}\n")
 
         total_elapsed = time.time() - total_start
         logger.info(f"[RUN {i}] TOTAL TIME: {total_elapsed:.2f}s")
-        logger.info(f"[RUN {i}] =============== END ====================")
+        logger.info(f"[RUN {i}] ================ END =====================")
 
     logger.info("===== 모든 RUN 종료 =====")
 
