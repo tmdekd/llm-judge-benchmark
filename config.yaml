@@ -11,7 +11,7 @@ datasets:
 
 eval:
     max_limit: 25
-    repetition_num: 10
+    repetition_num: 3
 
 model:
     name: 'gpt-5.1'
