@@ -1,0 +1,17 @@
+paths:
+    prompt_dir: 'prompt'
+    dataset_dir: 'data/test_dataset'
+    log_dir: 'log'
+    output_dir_name: 'output'
+    score_dir_name: 'scores'
+
+datasets:
+    env_csv: 'environment_50.csv'
+    health_csv: 'health_50.csv'
+
+eval:
+    max_limit: 25
+    repetition_num: 10
+
+model:
+    name: 'gpt-5.1'
