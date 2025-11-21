@@ -150,7 +150,7 @@ async def main_async(num_runs: int):
         now_kst = datetime.now(tz=ZoneInfo("Asia/Seoul"))
         with score_path.open("w", encoding="utf-8-sig") as f:
             f.write(f"Run: {i}\n")
-            f.write(f"현재 시간: {now_kst.strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+            f.write(f"생성 시간: {now_kst.strftime('%Y-%m-%d %H:%M:%S')}\n\n")
             f.write("=== Faithfulness ===\n")
             f.write(f"ENV_Faithfulness: {env_faith}\n")
             f.write(f"HEALTH_Faithfulness: {health_faith}\n\n")
