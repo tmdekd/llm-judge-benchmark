@@ -16,17 +16,25 @@ from gpt.async_scorer import (
     async_add_gpt_score_columns_two_dfs,
     build_results_from_df,
 )
-from config import (
-    PROMPT_DIR,
-    OUTPUT_DIR,
-    SCORE_DIR,
-    ENV_CSV_PATH,
-    HEALTH_CSV_PATH,
-    LOG_DIR,
-    MAX_LIMIT,
-    REPETITION_NUM,
-)
 from tqdm import tqdm
+from pathlib import Path
+from config_loader import load_config, BASE_DIR
+
+cfg = load_config()
+
+PROMPT_DIR = BASE_DIR / cfg["paths"]["prompt_dir"]
+DATASET_DIR = BASE_DIR / cfg["paths"]["dataset_dir"]
+LOG_DIR = BASE_DIR / cfg["paths"]["log_dir"]
+
+OUTPUT_DIR = DATASET_DIR / cfg["paths"]["output_dir_name"]
+SCORE_DIR = OUTPUT_DIR / cfg["paths"]["score_dir_name"]
+
+ENV_CSV_PATH = DATASET_DIR / cfg["datasets"]["env_csv"]
+HEALTH_CSV_PATH = DATASET_DIR / cfg["datasets"]["health_csv"]
+
+MAX_LIMIT = int(cfg["eval"]["max_limit"])
+REPETITION_NUM = int(cfg["eval"]["repetition_num"])
+MODEL_NAME = cfg["model"]["name"]
 
 
 class TqdmLoggingHandler(logging.Handler):
@@ -91,6 +99,7 @@ async def main_async(num_runs: int):
             metric_prefix="gpt_faithfulness",
             max_limit=MAX_LIMIT,
             progress_desc=f"[RUN {i}] Faithfulness",
+            model_name=MODEL_NAME,
         )
 
         # --------- Relevance (ENV+HEALTH 100 rows) ---------
@@ -102,6 +111,7 @@ async def main_async(num_runs: int):
             metric_prefix="gpt_relevance",
             max_limit=MAX_LIMIT,
             progress_desc=f"[RUN {i}] Relevance",
+            model_name=MODEL_NAME,
         )
 
         # CSV 저장

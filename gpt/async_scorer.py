@@ -16,10 +16,11 @@ async def score_row(
     retrieved_result: str,
     system_prompt: str,
     user_prompt: str,
+    model_name: str = "gpt-5.1",
 ) -> Tuple[int, str]:
     client = get_client()
     response = await client.chat.completions.create(
-        model="gpt-5.1",
+        model=model_name,
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
@@ -40,6 +41,7 @@ async def async_add_gpt_score_columns_two_dfs(
     metric_prefix: str,
     max_limit: int,
     progress_desc: str,
+    model_name: str = "gpt-5.1",
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     ENV, HEALTH 두 개의 DataFrame을 동시에 평가하고
@@ -69,6 +71,7 @@ async def async_add_gpt_score_columns_two_dfs(
                     retrieved_result=retrieved_result,
                     system_prompt=system_prompt,
                     user_prompt=user_prompt,
+                    model_name=model_name,
                 )
             except Exception as e:
                 logger.error(f"[{'ENV' if is_env else 'HEALTH'}][row {pos}] scoring failed ({metric_prefix}): {e}")
