@@ -96,7 +96,7 @@ async def async_add_gpt_score_columns_two_dfs(
         asyncio.as_completed(tasks),
         total=total_rows,
         desc=progress_desc,
-        leave=False,  # 끝나면 bar 지움
+        leave=False,
         ncols=100,
         dynamic_ncols=False,
     ):
