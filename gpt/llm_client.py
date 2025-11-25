@@ -12,8 +12,3 @@ client = AsyncOpenAI(api_key=api_key)
 
 def get_client() -> AsyncOpenAI:
     return client
-
-
-def load_text(path: Path) -> str:
-    with path.open("r", encoding="utf-8") as f:
-        return f.read()

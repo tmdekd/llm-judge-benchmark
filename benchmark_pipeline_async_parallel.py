@@ -11,14 +11,14 @@ from calculate_function.calculate_functions import (
     calculate_relevance_score,
 )
 
-from gpt.llm_client import load_text
 from gpt.async_scorer import (
     async_add_gpt_score_columns_two_dfs,
     build_results_from_df,
 )
 from tqdm import tqdm
 from pathlib import Path
-from config_loader import load_config, BASE_DIR
+from common.config.loader import BASE_DIR, load_config
+from common.utils.io import load_text
 
 cfg = load_config()
 
