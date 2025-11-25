@@ -115,8 +115,9 @@ async def main_async(num_runs: int):
         )
 
         # CSV 저장
-        env_csv_path = OUTPUT_DIR / "environment_50_scored.csv"
-        health_csv_path = OUTPUT_DIR / "health_50_scored.csv"
+        env_csv_path = OUTPUT_DIR / f"environment_50_scored_run{i}.csv"
+        health_csv_path = OUTPUT_DIR / f"health_50_scored_run{i}.csv"
+
         df_env_scored.to_csv(env_csv_path, encoding="utf-8-sig", index=False)
         df_health_scored.to_csv(health_csv_path, encoding="utf-8-sig", index=False)
 

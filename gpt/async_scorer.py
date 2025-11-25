@@ -27,6 +27,7 @@ async def score_row(
         ],
         response_format={"type": "json_object"},
         temperature=0.0,
+        timeout=120,
     )
 
     data = json.loads(response.choices[0].message.content)
@@ -64,18 +65,31 @@ async def async_add_gpt_score_columns_two_dfs(
             llm_answer=str(llm_answer),
         )
 
+        max_retries = 3
+        retry_delay = 2
+
         async with semaphore:
-            try:
-                score, reason = await score_row(
-                    llm_answer=llm_answer,
-                    retrieved_result=retrieved_result,
-                    system_prompt=system_prompt,
-                    user_prompt=user_prompt,
-                    model_name=model_name,
-                )
-            except Exception as e:
-                logger.error(f"[{'ENV' if is_env else 'HEALTH'}][row {pos}] scoring failed ({metric_prefix}): {e}")
-                score, reason = 0, f"error: {e}"
+            for attempt in range(1, max_retries + 1):
+                try:
+                    score, reason = await score_row(
+                        llm_answer=llm_answer,
+                        retrieved_result=retrieved_result,
+                        system_prompt=system_prompt,
+                        user_prompt=user_prompt,
+                        model_name=model_name,
+                    )
+                    return is_env, pos, score, reason
+
+                except Exception as e:
+                    logger.error(
+                        f"[{'ENV' if is_env else 'HEALTH'}][row {pos}] "
+                        f"{metric_prefix} 평가 실패 (재시도 {attempt}/{max_retries}): {e}"
+                    )
+
+                    if attempt < max_retries:
+                        await asyncio.sleep(retry_delay)
+                    else:
+                        return is_env, pos, 0, f"{max_retries}회 재시도 후 실패: {e}"
 
         return is_env, pos, score, reason
 
