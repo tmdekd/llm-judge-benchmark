@@ -55,7 +55,7 @@ logger.setLevel(logging.INFO)
 
 formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
 
-file_handler = logging.FileHandler(LOG_DIR / "llm_evaluation_async.log", encoding="utf-8-sig")
+file_handler = logging.FileHandler(LOG_DIR / "llm_evaluation_async_parallel.log", encoding="utf-8-sig")
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
