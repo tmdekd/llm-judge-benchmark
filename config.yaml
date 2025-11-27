@@ -1,16 +1,20 @@
+llm:
+    max_limit_qwen: 15
+
 paths:
     prompt_dir: 'prompt'
     dataset_dir: 'data/test_dataset'
     log_dir: 'log'
     output_dir_name: 'output'
     score_dir_name: 'scores'
+    llm_answer_dir_name: 'llm_answer'
 
 datasets:
     env_csv: 'environment_50.csv'
     health_csv: 'health_50.csv'
 
 eval:
-    max_limit: 25
+    max_limit_gpt: 25
     repetition_num: 3
 
 model:
