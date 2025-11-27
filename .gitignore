@@ -4,3 +4,4 @@ __pycache__/
 
 data/test_dataset/output/scores/*.txt
 data/test_dataset/output/*.csv
+data/test_dataset/output/llm_answer/*
