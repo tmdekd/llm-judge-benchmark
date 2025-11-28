@@ -61,7 +61,6 @@ class ModelManager:
 
 
 def get_embedding(text):
-    # url = "http://192.168.0.172:8700/embedding"
     url = os.environ["EMB_API"]
 
     headers = {"accept": "application/json", "Content-Type": "application/json"}
@@ -85,7 +84,6 @@ def get_embedding(text):
 
 
 def get_reranker(query, documents):
-    # url = "http://192.168.0.172:8600/rerank"
     url = os.environ["RERANK_URL"]
 
     headers = {"accept": "application/json", "Content-Type": "application/json"}
