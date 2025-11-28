@@ -5,6 +5,7 @@ Objective:
 - Evaluate how factually consistent the "llm_answer" is with this ground truth on a scale of 1 to 5.
 - Do NOT evaluate style, tone, or length. Focus strictly on factual accuracy and logical consistency.
 - Even if some details are not explicitly mentioned in the retrieved_result, treat reasonable common-sense inferences, typical background knowledge, or mild elaborations as “generally aligned,” and score generously.
+- When in doubt between two scores, choose the higher score.
 
 Inputs:
 - retrieved_result: factual information, criteria, or explanations that serve as the evaluation basis
@@ -12,43 +13,48 @@ Inputs:
 
 Scoring Criteria (1–5):
 
-**5 points:**
-- The main claims and explanations in llm_answer broadly match the retrieved_result.
-- No clear contradictions in key numbers, ranges, or causal relations.
-- Minor omissions, rephrasings, generalizations, or sensible elaborations are acceptable.
-- Answers that are mostly correct but omit some details may still receive 5 points if they do not introduce contradictions.
-- If the answer “largely reflects the ground truth,” strongly consider giving a score of 5.
+**5 points (strongly recommended default when broadly aligned):**
+- The main claims, conclusions, and explanations in llm_answer broadly match the retrieved_result.
+- No major contradictions in the overall conclusion or key causal relations.
+- Minor omissions, local inaccuracies (e.g., slightly different numbers or ranges), rephrasings, generalizations, or sensible elaborations are acceptable.
+- Some small factual mistakes can still be allowed if they do NOT change the main meaning or overall message.
+- If the answer largely reflects the ground truth and you are hesitating between 4 and 5, give **5 points**.
 
-**4 points:**
-- Mostly follows the retrieved_result, but may contain:
-  - small inaccuracies, or
-  - minor additions not altering the overall meaning.
-- Small missing details or slight deviations that do not affect factual correctness should be scored as 4 rather than 3.
+**4 points (generally correct with limited issues):**
+- Mostly follows the retrieved_result but contains one or more **localized** factual errors, or
+  - small inaccuracies in specific details (e.g., a threshold value, an example, a minor condition), or
+  - minor additions that are somewhat speculative but do NOT clearly contradict the retrieved_result.
+- The overall conclusion and main message are still consistent with the retrieved_result.
+- Use 4 points when there is a clear, limited error, but the answer is still “mostly correct” and faithful.
+- When choosing between 3 and 4, prefer **4 unless there are multiple or serious contradictions**.
 
-**3 points:**
-- Some core parts align with the retrieved_result, but:
-  - noticeable errors or contradictions exist in important areas, or
-  - unsupported claims are presented as fact.
-- Use 3 points only when these issues are meaningful enough that the answer cannot be considered “mostly correct.”
+**3 points (partially correct but with noticeable problems):**
+- Some important parts align with the retrieved_result, but:
+  - there are noticeable errors or contradictions in meaningful areas (e.g., misrepresenting an important condition, cause, or outcome), or
+  - the answer introduces unsupported claims as if they were facts, and these claims can affect the user’s understanding.
+- Use 3 points only when the issues are significant enough that the answer cannot be considered “mostly correct” overall.
+- If the answer still broadly matches the main idea and only a few details are wrong, consider **4 instead of 3**.
 
-**2 points:**
-- Major parts conflict with the retrieved_result.
-- Multiple significant factual errors.
+**2 points (largely incorrect):**
+- Major parts of the answer conflict with the retrieved_result.
+- Multiple significant factual errors, or the main conclusion is opposite to or incompatible with the ground truth.
+- The answer may mix a few correct phrases with many incorrect or misleading statements.
 
-**1 point:**
-- Most of the answer contradicts or ignores the retrieved_result.
+**1 point (almost completely unfaithful):**
+- Most of the answer contradicts, ignores, or invents information compared to the retrieved_result.
+- Severe hallucinations, fabricated facts, or a main message that is clearly incompatible with the ground truth.
 
 Scoring Guidelines:
-- When choosing between 3 and 4, prefer **4 unless clear contradictions** exist.
-- When choosing between 4 and 5, prefer **5 if no significant error** is present.
-- Scores of 1–2 should be reserved for responses with severe factual issues.
+- When choosing between 3 and 4, prefer **4 unless there are clear and impactful contradictions in important content**.
+- When choosing between 4 and 5, prefer **5 if the overall message and conclusion match the retrieved_result**, even if some details are imperfect.
+- Scores of 1–2 should be reserved for responses with severe factual issues or strong conflicts with the retrieved_result.
 
 Output Format:
 - Output exactly one JSON object and nothing else.
-- The "scoring_reason" MUST be written in Korean.
+- The "scoring_reason" MUST be written in Korean, briefly explaining why you chose the score.
 
 Example:
 {
   "score": 5,
-  "scoring_reason": "retrieved_result의 핵심 내용과 전반적으로 일치하고, 일부 생략이 있으나 사실관계에 영향을 주지 않는다."
+  "scoring_reason": "retrieved_result의 핵심 결론과 전반적으로 일치하며, 일부 숫자나 세부 조건의 차이가 있으나 전체적인 의미와 방향을 바꾸지 않는다."
 }

@@ -21,16 +21,15 @@ Scoring Criteria (1–5):
 
 **4 points:**
 - The answer is clearly about the same specific topic as the retrieved_result.
-- A clear majority of the content must be tightly focused on the focal point, with minimal deviation allowed.
-- However, if general or broad explanation occupies a noticeable portion of the answer, you should give 3 points instead of 4.
-- Use 4 points when the answer stays focused on the retrieved_result overall, but not as strictly or consistently as a 5-point answer.
+- **A clear majority of the content (for example, well over half) must refer to, build upon, or stay aligned with the key focal metrics, value ranges, conditions, or target groups.**
+- General or broad explanation can be present, but if it takes up a similar or larger amount of space than the focal-point-related content, you should lean toward a 3-point score rather than 4.
+- Even if the focal metrics/conditions are not referenced in every section, if they appear clearly several times and guide the overall direction of the response, a 4-point score is appropriate.
 
 **3 points:**
-- The answer discusses the same broad domain (health, environment, activity, etc.),
-  but:
-  - the specific focal point (metrics, ranges, conditions, target group, etc.) is only partially followed, or
-  - relevant and generic content are mixed in a way that weakens or distracts from the focal point.
-- Use 3 points when the answer is “related but not centered” on the retrieved_result.
+- The answer discusses the same broad domain (health, environment, activity, etc.), and there is some concrete connection to the focal point, but:
+  - the specific focal metric, range, condition, or target group is mentioned only briefly or in a few isolated sentences, or
+  - large parts of the answer are generic or educational, so the focal point feels secondary rather than central.
+- Use 3 points when the answer is “related but not centered” on the retrieved_result, and a reader might need to infer or search to find the specific focal metrics/conditions.
 
 **2 points:**
 - Only small parts of the answer clearly relate to the focal point.
@@ -45,6 +44,7 @@ Scoring Guidelines:
   - if you have any doubt about whether the focal point is maintained throughout, choose **4**.
 - When choosing between 3 and 4:
   - if generic explanation appears repeatedly or the focal point does not clearly dominate, choose **3**.
+  - **if you are unsure whether the focal metrics/conditions clearly occupy a majority of the answer, choose 3 rather than 4.**
 - Answers dominated by broad or generic explanations should not receive 4 or 5.
 - Slight or sporadic relevance should receive 1–2 points.
 
