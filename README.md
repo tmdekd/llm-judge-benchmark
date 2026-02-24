@@ -41,6 +41,8 @@ flowchart LR
     E -->|집계| F
 ```
 
+![alt text](<시스템 아키텍처.png>)
+
 ### 파이프라인 실행 흐름 (통합 버전)
 
 ```mermaid
@@ -54,6 +56,8 @@ flowchart TD
     F --> G[점수 집계 및 요약 저장]
     G -->|N회 반복| D
 ```
+
+![alt text](<파이프라인 실행 흐름.png>)
 
 ---
 
