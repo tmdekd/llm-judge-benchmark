@@ -19,43 +19,9 @@
 
 ## 아키텍처
 
-```mermaid
-flowchart LR
-    subgraph 데이터셋["데이터셋 (query + retrieved_result)"]
-        A["environment_50.csv<br/>(주거환경 50건)"]
-        B["health_50.csv<br/>(건강 50건)"]
-    end
-
-    C["Qwen 2.5-72B<br/>(로컬 서버)"]
-    D["GPT-5.1<br/>(OpenAI API)"]
-
-    subgraph 결과
-        E[scored CSV]
-        F[점수 요약 TXT]
-    end
-
-    A & B -->|"query + retrieved_result"| C
-    C -->|llm_answer 생성| D
-    A & B -.->|"retrieved_result (평가 근거)"| D
-    D -->|"score + scoring_reason"| E
-    E -->|집계| F
-```
-
 ![alt text](<시스템 아키텍처.png>)
 
 ### 파이프라인 실행 흐름 (통합 버전)
-
-```mermaid
-flowchart TD
-    A[CSV 로드] --> B{기존 LLM 응답 존재?}
-    B -- 예 --> D
-    B -- 아니오 --> C[Qwen으로 llm_answer 생성<br/>비동기 병렬]
-    C --> D[GPT-5.1 Faithfulness 채점<br/>ENV + HEALTH 동시 처리]
-    D --> E[GPT-5.1 Relevance 채점<br/>ENV + HEALTH 동시 처리]
-    E --> F[채점 결과 CSV 저장]
-    F --> G[점수 집계 및 요약 저장]
-    G -->|N회 반복| D
-```
 
 ![alt text](<파이프라인 실행 흐름.png>)
 
