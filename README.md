@@ -21,35 +21,23 @@
 
 ```mermaid
 flowchart LR
-    subgraph 데이터셋
+    subgraph 데이터셋["데이터셋 (query + retrieved_result)"]
         A["environment_50.csv<br/>(주거환경 50건)"]
         B["health_50.csv<br/>(건강 50건)"]
     end
 
-    subgraph 데이터 구성
-        Q["query<br/>(분석 요청)"]
-        R["retrieved_result<br/>(VectorDB 검색 근거)"]
-    end
-
-    subgraph Step 1. 답변 생성
-        C["Qwen 2.5-72B<br/>(로컬 서버)"]
-        L[llm_answer]
-    end
-
-    subgraph Step 2. 자동 평가
-        D["GPT-5.1<br/>(OpenAI API)"]
-    end
+    C["Qwen 2.5-72B<br/>(로컬 서버)"]
+    D["GPT-5.1<br/>(OpenAI API)"]
 
     subgraph 결과
         E[scored CSV]
         F[점수 요약 TXT]
     end
 
-    A & B --> Q & R
-    Q & R -->|프롬프트 구성| C
-    C --> L
-    L & R -->|평가 요청| D
-    D -->|score + scoring_reason| E
+    A & B -->|"query + retrieved_result"| C
+    C -->|llm_answer 생성| D
+    A & B -.->|"retrieved_result (평가 근거)"| D
+    D -->|"score + scoring_reason"| E
     E -->|집계| F
 ```
 
