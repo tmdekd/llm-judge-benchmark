@@ -91,7 +91,7 @@ pip install -r requirements.txt
 
 ```env
 OPENAI_KEY='your-openai-api-key'
-QWEN_API='http://<qwen-server-ip>:8008/v1/chat/completions'
+QWEN_API='your-qwen-model-endpoint-url'
 ```
 
 ### 3. 설정 파일 (`config.yaml`)
